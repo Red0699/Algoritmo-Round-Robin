@@ -8,8 +8,12 @@ import java.util.ArrayList;
 public class Inicio extends JFrame {
     private JLabel quantumLabel;
     private JLabel rafagaLabel;
+
+    private JLabel tiempoLlegadaLabel;
     private JTextField quantumText;
     private JTextField rafagaText;
+
+    private JTextField tiempoLlegadaText;
     private JButton agregarButton;
     private JButton simularButton;
     private JTable tablaProcesos;
@@ -23,8 +27,10 @@ public class Inicio extends JFrame {
         listaProcesos = new ArrayList<>();
         quantumLabel = new JLabel("Quantum:");
         rafagaLabel = new JLabel("Tiempo en ráfaga:");
+        tiempoLlegadaLabel = new JLabel("Tiempo de Llegada: ");
         quantumText = new JTextField(10);
         rafagaText = new JTextField(10);
+        tiempoLlegadaText = new JTextField(10);
         agregarButton = new JButton("Agregar proceso");
         simularButton = new JButton("Simular");
         model = new DefaultTableModel();
@@ -32,6 +38,7 @@ public class Inicio extends JFrame {
         model.addColumn("Proceso");
         model.addColumn("Quantum");
         model.addColumn("Tiempo en ráfaga");
+        model.addColumn("Tiempor de Llegada");
         scrollPane = new JScrollPane(tablaProcesos);
         JPanel panelSuperior = new JPanel(new GridLayout(2, 2));
         JPanel panelCentral = new JPanel(new BorderLayout());
@@ -41,6 +48,8 @@ public class Inicio extends JFrame {
         panelSuperior.add(quantumText);
         panelSuperior.add(rafagaLabel);
         panelSuperior.add(rafagaText);
+        panelSuperior.add(tiempoLlegadaLabel);
+        panelSuperior.add(tiempoLlegadaText);
         panelCentral.add(scrollPane, BorderLayout.CENTER);
         panelInferior.add(agregarButton);
         panelInferior.add(simularButton);
@@ -73,21 +82,26 @@ public class Inicio extends JFrame {
     private void agregarProceso() {
         String quantum = quantumText.getText();
         String rafaga = rafagaText.getText();
+        String tiempoLlegada = tiempoLlegadaText.getText();
 
-        if (quantum.isEmpty() || rafaga.isEmpty()) {
+        //System.out.println(quantum + rafaga + tiempoLlegada);
+
+        if (quantum.isEmpty() || rafaga.isEmpty() || tiempoLlegada.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingrese valores válidos");
         } else {
             int numeroProceso = model.getRowCount() + 1;
-            model.addRow(new String[]{String.valueOf(numeroProceso), quantum, rafaga});
-            Proceso proceso = new Proceso(numeroProceso, Integer.parseInt(quantum), Integer.parseInt(rafaga));
+            model.addRow(new String[]{String.valueOf(numeroProceso), quantum ,rafaga, tiempoLlegada});
+            Proceso proceso = new Proceso(numeroProceso, Integer.parseInt(quantum), Integer.parseInt(rafaga), Integer.parseInt(tiempoLlegada));
             listaProcesos.add(proceso);
-            quantumText.setText("");
+            tiempoLlegadaText.setText("");
             rafagaText.setText("");
         }
     }
 
     private void simular() {
         String quantum = quantumText.getText();
+        System.out.println(listaProcesos);
+
         if (listaProcesos.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingrese al menos un proceso");
         } else {

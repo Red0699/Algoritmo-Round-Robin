@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class RoundRobin {
     private ArrayList<Proceso> listaProcesos;
@@ -11,7 +13,7 @@ public class RoundRobin {
 
     public ArrayList<ResultadoProceso> simularProcesos() {
         ArrayList<ResultadoProceso> listaResultados = new ArrayList<>();
-        ArrayList<Proceso> colaProcesos = new ArrayList<>();
+        Queue<Proceso> colaProcesos = new LinkedList<>();
         int tiempo = 0;
 
         while (!listaProcesos.isEmpty() || !colaProcesos.isEmpty()) {
@@ -24,24 +26,24 @@ public class RoundRobin {
 
             // Ejecutar el primer proceso en la cola
             if (!colaProcesos.isEmpty()) {
-                Proceso procesoActual = colaProcesos.get(0);
+                Proceso procesoActual = colaProcesos.peek();
 
                 // Verificar si el proceso ha terminado
                 if (procesoActual.getTiempoRestante() <= quantum) {
                     tiempo += procesoActual.getTiempoRestante();
                     procesoActual.setTiempoRestante(0);
-                    listaResultados.add(new ResultadoProceso( procesoActual.getNumProceso(), procesoActual.getNombre(), tiempo, procesoActual.getTiempoServicio(), tiempo - procesoActual.getTiempoLlegada() - procesoActual.getTiempoServicio()));
-                    colaProcesos.remove(0);
+                    listaResultados.add(new ResultadoProceso(tiempo, procesoActual.getTiempoServicio(), tiempo - procesoActual.getTiempoLlegada() - procesoActual.getTiempoServicio(), procesoActual));
+                    colaProcesos.poll();
                 } else {
                     tiempo += quantum;
                     procesoActual.setTiempoRestante(procesoActual.getTiempoRestante() - quantum);
-                    colaProcesos.add(colaProcesos.remove(0));
+                    colaProcesos.poll();
+                    colaProcesos.add(procesoActual);
                 }
             } else {
                 tiempo++;
             }
         }
-
         return listaResultados;
     }
 }

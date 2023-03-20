@@ -69,7 +69,7 @@ public class ResultadosWindow extends JFrame implements ActionListener {
     private void llenarTabla(DefaultTableModel model) {
         for (ResultadoProceso resultado : listaResultados) {
             Object[] row = new Object[5];
-            row[0] = resultado.getProceso().getNombre();
+            row[0] = resultado.getProceso().getNumProceso();
             row[1] = resultado.getProceso().getTiempoLlegada();
             row[2] = resultado.getTiempoFinal();
             row[3] = resultado.getTiempoServicio();
