@@ -105,9 +105,12 @@ public class Inicio extends JFrame {
         if (listaProcesos.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ingrese al menos un proceso");
         } else {
-            RoundRobin rr = new RoundRobin(listaProcesos, Integer.parseInt(quantum));
-            ResultadosWindow ventana2 = new ResultadosWindow(rr.simularProcesos());
-            ventana2.setVisible(true);
+            //RoundRobin rr = new RoundRobin(listaProcesos, Integer.parseInt(quantum));
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    new ResultadosWindow(listaProcesos, Integer.parseInt(quantum)).setVisible(true);
+                }
+            });
             dispose();
         }
     }
