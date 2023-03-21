@@ -16,7 +16,8 @@ public class ResultadosWindow extends JFrame implements ActionListener {
     private int rafaga;
     private int residuo;
     private int quantum;
-    private int tiempoServicio;
+    private int tiempoFinal;
+    private int tiempoLlegada;
     private int cont;
 
     public ResultadosWindow(ArrayList<Proceso> listaResultados, int quantum) {
@@ -49,13 +50,16 @@ public class ResultadosWindow extends JFrame implements ActionListener {
         JLabel etiquetaTabla2 = new JLabel("Tabla 2");
         etiquetaTabla2.setFont(new Font("Arial", Font.BOLD, 16));
         // Configuración de la segunda tabla
-        String[] columnasDos = {"#", "Rafafa", "Quantum", "Tiempo Final"};
+        String[] columnasDos = {"#","Tiempo Llegada" ,"Rafaga", "Quantum", "Tiempo Final", "Tiempo Servicio", "Tiempo Espera"};
         modeloTablaDos = new DefaultTableModel(null, columnasDos);
         tabla2 = new JTable(modeloTablaDos);
         tabla2.getColumnModel().getColumn(0).setPreferredWidth(60);
         tabla2.getColumnModel().getColumn(1).setPreferredWidth(120);
         tabla2.getColumnModel().getColumn(2).setPreferredWidth(120);
         tabla2.getColumnModel().getColumn(3).setPreferredWidth(120);
+        tabla2.getColumnModel().getColumn(4).setPreferredWidth(120);
+        tabla2.getColumnModel().getColumn(5).setPreferredWidth(120);
+        tabla2.getColumnModel().getColumn(6).setPreferredWidth(120);
 
         // Configuración del JScrollPane y panelTabla
         scrollPane = new JScrollPane(tabla);
@@ -107,7 +111,7 @@ public class ResultadosWindow extends JFrame implements ActionListener {
 
     //Metodo para correr la simulación
     private class Inicio implements Runnable {
-
+        long tiempoInicio = System.currentTimeMillis();
         @Override
         public void run() {
             int estado = 1; //Estado de while que indica si se puede seguir o no
@@ -116,12 +120,12 @@ public class ResultadosWindow extends JFrame implements ActionListener {
             while (estado != 0) {
                 while (i < cont) { //Recorrer las filas
                     Cargar(i);
-                    if (residuo != 0 && residuo > quantum) { //Ejecutando Procesos
+                    if (residuo != 0 && residuo > quantum && tiempoFinal >= tiempoLlegada) { //Ejecutando Procesos
                         for (int c = 1; c <= quantum; c++) {
                             tabla.setValueAt("Procesando", i, 5);
                             residuo--;
                             tabla.setValueAt(String.valueOf(residuo), i, 4);
-                            tiempoServicio++;
+                            tiempoFinal++;
                             Dormir();
                         }
                         tabla.setValueAt("Espera", i, 5);
@@ -131,12 +135,12 @@ public class ResultadosWindow extends JFrame implements ActionListener {
                             Borrar(i);
                         }
                     } else {
-                        if (residuo > 0 && quantum != 0) {
+                        if (residuo > 0 && quantum != 0 && tiempoFinal >= tiempoLlegada) {
                             while (residuo > 0) {
                                 tabla.setValueAt("Procesando", i, 5);
                                 residuo--;
                                 tabla.setValueAt(String.valueOf(residuo), i, 4);
-                                tiempoServicio++;
+                                tiempoFinal++;
                                 Dormir();
                             }
                             tabla.setValueAt("Espera", i, 5);
@@ -167,11 +171,12 @@ public class ResultadosWindow extends JFrame implements ActionListener {
         rafaga = Integer.parseInt(tabla.getValueAt(i, 2).toString());
         quantum = Integer.parseInt(tabla.getValueAt(i, 3).toString());
         residuo = Integer.parseInt(tabla.getValueAt(i, 4).toString());
+        tiempoLlegada = Integer.parseInt(tabla.getValueAt(i, 1).toString());
     }
 
     public void Dormir() {
         try {
-            Thread.sleep(700); //Dormir sistema
+            Thread.sleep(1000); //Dormir sistema
         } catch (InterruptedException ex) {
             Logger.getLogger(Procesar.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -191,12 +196,14 @@ public class ResultadosWindow extends JFrame implements ActionListener {
     public void Resultado(int c, DefaultTableModel modelo2) {
         modelo2 = (DefaultTableModel) tabla2.getModel();
 
-        Object[] row = new Object[5];
+        Object[] row = new Object[7];
         row[0] = c + 1;
-        row[1] = rafaga;
-        row[2] = quantum;
-        row[3] = tiempoServicio + " Segundos";
-        row[4] = "Terminado";
+        row[1] = tiempoLlegada;
+        row[2] = rafaga;
+        row[3] = quantum;
+        row[4] = tiempoFinal;
+        row[5] = tiempoFinal - tiempoLlegada;
+        row[6] = (tiempoFinal - tiempoLlegada) - rafaga;
         modelo2.addRow(row);
         tabla2.setModel(modelo2);
 
