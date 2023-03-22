@@ -1,3 +1,5 @@
+/*
+
 public class ResultadoProceso {
     private int tiempoFinal;
     private int tiempoServicio;
@@ -24,3 +26,4 @@ public class ResultadoProceso {
         return tiempoEspera;
     }
 }
+*/

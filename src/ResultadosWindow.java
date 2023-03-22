@@ -11,21 +11,21 @@ import static java.lang.Integer.parseInt;
 
 public class ResultadosWindow extends JFrame implements ActionListener {
 
-    private ArrayList<Proceso> listaResultados;
+    private ArrayList<Proceso> listaProcesos;
     private int numProceso;
-    private int rafaga;
+    private int ejecucion;
     private int residuo;
     private int quantum;
     private int tiempoFinal;
     private int tiempoLlegada;
     private int cont;
 
-    public ResultadosWindow(ArrayList<Proceso> listaResultados, int quantum) {
+    public ResultadosWindow(ArrayList<Proceso> listaProcesos, int quantum) {
 
-        this.listaResultados = listaResultados;
+        this.listaProcesos = listaProcesos;
         this.quantum = quantum;
         // Configuración de la ventana
-        setSize(800, 600);
+        setSize(820, 600);
         setTitle("Simulación Round Robin");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -37,7 +37,7 @@ public class ResultadosWindow extends JFrame implements ActionListener {
         panelTitulo.add(etiquetaTitulo);
 
         // Configuración de la primera tabla
-        String[] columnas = {"#", "Tiempo de llegada", "Tiempo de rafaga", "Quantum", "Residuo", "Estado"};
+        String[] columnas = {"#", "Tiempo de llegada", "Tiempo de ejecución", "Quantum", "Residuo", "Estado"};
         modeloTabla = new DefaultTableModel(null, columnas);
         tabla = new JTable(modeloTabla);
         tabla.getColumnModel().getColumn(0).setPreferredWidth(60);
@@ -47,10 +47,12 @@ public class ResultadosWindow extends JFrame implements ActionListener {
         tabla.getColumnModel().getColumn(4).setPreferredWidth(120);
         tabla.getColumnModel().getColumn(5).setPreferredWidth(120);
 
-        JLabel etiquetaTabla2 = new JLabel("Tabla 2");
+        etiquetaTabla2 = new JLabel("Tabla 2");
         etiquetaTabla2.setFont(new Font("Arial", Font.BOLD, 16));
+        panelTitulo2 = new JPanel();
+        panelTitulo2.add(etiquetaTabla2);
         // Configuración de la segunda tabla
-        String[] columnasDos = {"#","Tiempo Llegada" ,"Rafaga", "Quantum", "Tiempo Final", "Tiempo Servicio", "Tiempo Espera"};
+        String[] columnasDos = {"#","Tiempo Llegada" ,"Tiempo Ejecución", "Quantum", "Tiempo Final", "Tiempo Servicio", "Tiempo Espera"};
         modeloTablaDos = new DefaultTableModel(null, columnasDos);
         tabla2 = new JTable(modeloTablaDos);
         tabla2.getColumnModel().getColumn(0).setPreferredWidth(60);
@@ -79,13 +81,13 @@ public class ResultadosWindow extends JFrame implements ActionListener {
         botonSimular = new JButton("Iniciar");
         botonSimular.addActionListener(this);
         panelBotones = new JPanel();
-        panelBotones.add(botonVerGantt);
         panelBotones.add(botonInicio);
         panelBotones.add(botonSimular);
 
         // Agregamos los paneles a la ventana
         add(panelTitulo, BorderLayout.NORTH);
         add(panelTabla, BorderLayout.CENTER);
+        //add(panelTitulo2, BorderLayout.CENTER);
         add(panelBotones, BorderLayout.SOUTH);
 
         // Llenamos la tabla con los resultados
@@ -96,7 +98,7 @@ public class ResultadosWindow extends JFrame implements ActionListener {
 
     // Método para llenar la tabla con los valores ingresados por el usuario
     private void llenarTabla(DefaultTableModel model) {
-        for (Proceso resultado : listaResultados) {
+        for (Proceso resultado : listaProcesos) {
             cont++;
             Object[] row = new Object[6];
             row[0] = resultado.getNumProceso();
@@ -110,8 +112,8 @@ public class ResultadosWindow extends JFrame implements ActionListener {
     }
 
     //Metodo para correr la simulación
-    private class Inicio implements Runnable {
-        long tiempoInicio = System.currentTimeMillis();
+    private class Iniciar implements Runnable {
+        //long tiempoInicio = System.currentTimeMillis();
         @Override
         public void run() {
             int estado = 1; //Estado de while que indica si se puede seguir o no
@@ -168,7 +170,7 @@ public class ResultadosWindow extends JFrame implements ActionListener {
     //Carga los valores de la primera Tabla
     public void Cargar(int i) {
         numProceso = Integer.parseInt(tabla.getValueAt(i, 0).toString());
-        rafaga = Integer.parseInt(tabla.getValueAt(i, 2).toString());
+        ejecucion = Integer.parseInt(tabla.getValueAt(i, 2).toString());
         quantum = Integer.parseInt(tabla.getValueAt(i, 3).toString());
         residuo = Integer.parseInt(tabla.getValueAt(i, 4).toString());
         tiempoLlegada = Integer.parseInt(tabla.getValueAt(i, 1).toString());
@@ -178,7 +180,7 @@ public class ResultadosWindow extends JFrame implements ActionListener {
         try {
             Thread.sleep(1000); //Dormir sistema
         } catch (InterruptedException ex) {
-            Logger.getLogger(Procesar.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ResultadosWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -189,7 +191,7 @@ public class ResultadosWindow extends JFrame implements ActionListener {
         tabla.setValueAt("0", c, 2);
         tabla.setValueAt("0", c, 3);
         tabla.setValueAt("0", c, 4);
-        tabla.setValueAt("******", c, 5);
+        tabla.setValueAt("Finalizado", c, 5);
     }
 
     //Carga los valores finales de los procesos a la segunda tabla
@@ -199,33 +201,29 @@ public class ResultadosWindow extends JFrame implements ActionListener {
         Object[] row = new Object[7];
         row[0] = c + 1;
         row[1] = tiempoLlegada;
-        row[2] = rafaga;
+        row[2] = ejecucion;
         row[3] = quantum;
         row[4] = tiempoFinal;
         row[5] = tiempoFinal - tiempoLlegada;
-        row[6] = (tiempoFinal - tiempoLlegada) - rafaga;
+        row[6] = (tiempoFinal - tiempoLlegada) - ejecucion;
         modelo2.addRow(row);
         tabla2.setModel(modelo2);
-
     }
 
     // Acciones de los botones
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == botonVerGantt) {
-            //new VentanaGantt(listaResultados);
-            setVisible(false);
-        } else if (e.getSource() == botonInicio) {
-            new Inicio();
-            setVisible(true);
+         if (e.getSource() == botonInicio) {
+            new Inicio().setVisible(true);
+            dispose();
         } else if (e.getSource() == botonSimular) {
-            new Thread(new ResultadosWindow.Inicio()).start();
+            new Thread(new ResultadosWindow.Iniciar()).start();
         }
     }
 
     //Variables del Swing GUI
     private JButton botonVerGantt, botonInicio, botonSimular;
-    private JLabel etiquetaTitulo;
-    private JPanel panelTitulo, panelTabla, panelBotones;
+    private JLabel etiquetaTitulo, etiquetaTabla2;
+    private JPanel panelTitulo, panelTabla, panelBotones, panelTitulo2;
     private JTable tabla, tabla2;
     private JScrollPane scrollPane, scrollPane2;
     private DefaultTableModel modeloTabla, modeloTablaDos;
